@@ -25,22 +25,11 @@ musicFolder = ""
 APIkey = []
 pathLL = ""
 
-if (platform == 'Darwin' or platform == 'darwin'):
-    import requests
-
-elif (platform == 'Windows' or platform == 'win32'):
-    import http.client
-    pathLL = fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json"
-
-# create a rapid api acount(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
-# get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
-# works with array so you can create many free acount
-
-def createParam():
+def createParamWin():
     paramJson = "{\"filePath\":\"C:\\\\Users\\\\% s\\\\Music\",\"apiKeys\":[\"\"]}"% user
     if not path.exists(fr"C:\Users\{user}\AppData\LocalLow\YTMP3"):
         os.mkdir(fr"C:\Users\{user}\AppData\LocalLow\YTMP3")
-        f = open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json")
+        f = open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w")
         f.write(paramJson)
         f.close()
     else:
@@ -49,14 +38,39 @@ def createParam():
             f.write(paramJson)
             f.close()
 
+def createParamMac():
+    paramJson = "{\"filePath\":\"/Users/% s/Music\",\"apiKeys\":[\"\"]}"% user
+    if not path.exists(f"/Users/{user}/AppData/Local/YTMP3"):
+        os.mkdir(f"/Users/{user}/AppData/Local/YTMP3")
+        f = open(f"/Users/{user}/AppData/Local/YTMP3/parameter.json", "w")
+        f.write(paramJson)
+        f.close()
+    else:
+        if not path.exists(f"/Users/{user}/AppData/Local/YTMP3/parameter.json"):
+            f = open(f"/Users/{user}/AppData/Local/YTMP3/parameter.json", "w")
+            f.write(paramJson)
+            f.close()
 
-createParam()
+if (platform == 'Darwin' or platform == 'darwin'):
+    import requests
+    pathLL = f"/Users/{user}/AppData/Local/YTMP3/parameter.json"
+    createParamMac()
+
+elif (platform == 'Windows' or platform == 'win32'):
+    import http.client
+    pathLL = fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json"
+    createParamWin()
+
+# create a rapid api acount(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
+# get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
+# works with array so you can create many free acount
+
 with open(pathLL, "r") as data:
     param = json.loads(data.read())
     musicFolder = param["filePath"]
     APIkey = param["apiKeys"]
     if APIkey == [""]:
-        exit("No API key")
+        print("No API Key, type -A to add one\nGo on https://rapidapi.com/apidojo/api/shazam/pricing to get a free API key")
 
 def remove(string):
     b = r"!@#$/.()\'&"
@@ -177,13 +191,24 @@ def Download_and_sort(highest, yt):
         os.system(fr"del {musicFolder}\temp.webm")
         os.system("cls")
 
+def GetAPI(key):
+    with open(pathLL, "w") as data:
+        param = json.loads(data.read())
+        keys = param["apiKeys"]
+        if keys == [""]:
+
 
 while (True):
-    l = input("Enter YT link:")
+    l = input()
 
-    if 'playlist' in l:
-        GetYtPlay(l)
+    if '-A' in l:
+        i = input("API key:")
+        GetAPI(i)
 
-    else:
-        high, yts = GetYtVid(l)
-        Download_and_sort(high, yts)
+    if '-Y' in l:
+        i = input("YT link:")
+        if 'playlist' in i:
+            GetYtPlay(i)
+        else:
+            high, yts = GetYtVid(i)
+            Download_and_sort(high, yts)
