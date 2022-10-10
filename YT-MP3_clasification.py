@@ -1,20 +1,6 @@
-import random
-from pytube import YouTube
-from pytube import Playlist
-import os
-import json
-import base64
-from sys import platform
-
-if (platform == 'Darwin' or platform == 'darwin'):
-    import requests
-elif (platform == 'Windows' or platform == 'win32'):
-    import http.client
-
 # This is a terminal application
 # no support for Linux
 # you can download a playlist too, link should look like this: https://www.youtube.com/playlist?list=PLq-toGv_i0BA2iRkCZHjyu2zkOMte-blR
-
 
 # need python 3
 
@@ -24,18 +10,56 @@ elif (platform == 'Windows' or platform == 'win32'):
 
 # need pytube : pip install pytube
 
+import random
+from pytube import YouTube
+from pytube import Playlist
+import os
+from os import path
+import json
+import base64
+from sys import platform
 
-# don't include slash at the end
-musicFolder = r"C:\Users\[name]\Music"
+#need this to get appdata/local
+user = os.getlogin()
+musicFolder = ""
+APIkey = []
+pathLL = ""
+
+if (platform == 'Darwin' or platform == 'darwin'):
+    import requests
+
+elif (platform == 'Windows' or platform == 'win32'):
+    import http.client
+    pathLL = fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json"
 
 # create a rapid api acount(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
 # get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
 # works with array so you can create many free acount
-APIkey = ["", ""]
 
+def createParam():
+    paramJson = "{\"filePath\":\"C:\\\\Users\\\\% s\\\\Music\",\"apiKeys\":[\"\"]}"% user
+    if not path.exists(fr"C:\Users\{user}\AppData\LocalLow\YTMP3"):
+        os.mkdir(fr"C:\Users\{user}\AppData\LocalLow\YTMP3")
+        f = open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json")
+        f.write(paramJson)
+        f.close()
+    else:
+        if not path.exists(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json"):
+            f = open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w")
+            f.write(paramJson)
+            f.close()
+
+
+createParam()
+with open(pathLL, "r") as data:
+    param = json.loads(data.read())
+    musicFolder = param["filePath"]
+    APIkey = param["apiKeys"]
+    if APIkey == [""]:
+        exit("No API key")
 
 def remove(string):
-    b = r"!@#$/.()\'"
+    b = r"!@#$/.()\'&"
     for char in b:
         string = string.replace(char, "")
     string = string.replace(" ", "-")
@@ -123,7 +147,7 @@ def Download_and_sort(highest, yt):
             res = conn.getresponse()
             data = res.read()
             response = data.decode("utf-8")
-            os.system("clear")
+            os.system("cls")
 
             json_data = json.loads(response)
 
