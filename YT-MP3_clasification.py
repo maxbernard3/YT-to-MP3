@@ -65,12 +65,28 @@ elif (platform == 'Windows' or platform == 'win32'):
 # get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
 # works with array so you can create many free acount
 
-with open(pathLL, "r") as data:
-    param = json.loads(data.read())
-    musicFolder = param["filePath"]
-    APIkey = param["apiKeys"]
-    if APIkey == [""]:
-        print("No API Key, type -A to add one\nGo on https://rapidapi.com/apidojo/api/shazam/pricing to get a free API key")
+def main():
+    with open(pathLL, "r") as data:
+        param = json.load(data)
+        musicFolder = param["filePath"]
+        APIkey = param["apiKeys"]
+        if APIkey == [""]:
+            print(
+                "No API Key, type -A to add one\nGo on https://rapidapi.com/apidojo/api/shazam/pricing to get a free API key")
+
+    l = input()
+
+    if '-A' in l:
+        i = input("API key:")
+        GetAPI(i)
+
+    if '-Y' in l:
+        i = input("YT link:")
+        if 'playlist' in i:
+            GetYtPlay(i)
+        else:
+            high, yts = GetYtVid(i)
+            Download_and_sort(high, yts)
 
 def remove(string):
     b = r"!@#$/.()\'&"
@@ -191,24 +207,24 @@ def Download_and_sort(highest, yt):
         os.system(fr"del {musicFolder}\temp.webm")
         os.system("cls")
 
+
+
 def GetAPI(key):
-    with open(pathLL, "w") as data:
-        param = json.loads(data.read())
-        keys = param["apiKeys"]
-        if keys == [""]:
+    param = ""
+    with open(pathLL, "r") as data:
+        param = json.load(data)
+
+    with open(pathLL, "w") as FW:
+        if param["apiKeys"] == [""]:
+            param["apiKeys"] = [key]
+            json.dump(param, FW)
+        else:
+            param["apiKeys"].append(key)
+            json.dump(param, FW)
+
+    print("Key added \n")
+    main()
 
 
 while (True):
-    l = input()
-
-    if '-A' in l:
-        i = input("API key:")
-        GetAPI(i)
-
-    if '-Y' in l:
-        i = input("YT link:")
-        if 'playlist' in i:
-            GetYtPlay(i)
-        else:
-            high, yts = GetYtVid(i)
-            Download_and_sort(high, yts)
+    main()
