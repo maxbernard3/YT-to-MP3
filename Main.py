@@ -10,82 +10,52 @@
 
 # need pytube : pip install pytube
 
-import random
 from pytube import YouTube
 from pytube import Playlist
 import os
-from os import path
 import json
 from sys import platform
 from pathlib import Path
 import MacOS
 import Windows
-from Comon import remove
-
-#need this to get appdata/local
-user = os.getlogin()
-global musicFolder
-global APIkey
-global pathLL
-
-
-if (platform == 'Darwin' or platform == 'darwin'):
-    pathLL = Path(f"/Users/{user}/AppData/Local/YTMP3/parameter.json")
-    MacOS.createParam(user)
-
-elif (platform == 'Windows' or platform == 'win32'):
-    pathLL = Path(fr"C:/Users/{user}/AppData/LocalLow/YTMP3/parameter.json")
-    Windows.createParam(user)
-
-with open(pathLL, "r") as data:
-    param = json.load(data)
-    musicFolder = Path(param["filePath"])
-    APIkey = param["apiKeys"]
 
 # create a rapid api acount(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
 # get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
 # works with array so you can create many free acount
 
-def main():
-    with open(pathLL, "r") as data:
-        param = json.load(data)
-        musicFolder = Path(param["filePath"])
-        APIkey = param["apiKeys"]
-        if APIkey == [""]:
-            print(
-                "No API Key, type -A to add one\nGo on https://rapidapi.com/apidojo/api/shazam/pricing to get a free API key")
+def main(musFolder, keys, pathLL):
+    if keys == [""]:
+        print(
+            "No API Key, type -A to add one\nGo on https://rapidapi.com/apidojo/api/shazam/pricing to get a free API key")
 
     l = input("help to see comand\n")
 
     if "help" in l:
-        print("-A to add API keys \n-Y to enter YT link\n-T to change save path\n")
-        main()
+        print("\n-Y to enter YT link (autoclasificasion)\n-N to enter YT link (no clasificasion)\n-T to change save path\n-A to add API keys")
+        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
     elif '-A' in l:
         i = input("API key:\n")
-        GetAPI(i)
-
+        GetAPI(i, pathLL)
+        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
     elif '-Y' in l:
-        i = input("YT link:\n")
-        if 'playlist' in i:
-            GetYtPlay(i)
-        else:
-            high, yts = GetYtVid(i)
-            if (platform == 'Darwin' or platform == 'darwin'):
-                 MacOS.Download_and_sort(high, yts, musicFolder, APIkey)
-            elif(platform == 'Windows' or platform == 'win32'):
-                Windows.Download_and_sort(high, yts, musicFolder, APIkey)
-        main()
+        getY(musFolder, keys)
+        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
     elif '-T' in l:
         i = input("new file Path:\n")
-        ChangeTargetFile(i)
+        ChangeTargetFile(i, pathLL)
+        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
     else:
         print("invalid comand")
-        main()
+        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
 
 
+def GetParam():
+    with open(getPathLL(), "r") as data:
+        param = json.load(data)
+    return param
 
 
-def GetYtVid(link):
+def GetYtVid(link, musicFolder):
     yt = YouTube(link)
     ys = yt.streams.filter(only_audio=True)
 
@@ -100,13 +70,13 @@ def GetYtVid(link):
     return (highest, yt)
 
 
-def GetYtPlay(link):
+def GetYtPlay(link, musicFolder, APIkey):
     p = Playlist(link)
     i = 0
     for vid_url in p.video_urls:
         i += 1
         print(f"{i} in {len(p)}")
-        high, yts = GetYtVid(vid_url)
+        high, yts = GetYtVid(vid_url, musicFolder)
         if (platform == 'Darwin' or platform == 'darwin'):
              MacOS.Download_and_sort(high, yts, musicFolder, APIkey)
         elif(platform == 'Windows' or platform == 'win32'):
@@ -114,11 +84,21 @@ def GetYtPlay(link):
     print("\n Done")
 
 
-def GetAPI(key):
-    param = ""
-    with open(pathLL, "r") as data:
-        param = json.load(data)
+def getPathLL():
+    user = os.getlogin()
+    pathLL = ""
+    if (platform == 'Darwin' or platform == 'darwin'):
+        pathLL = Path(f"/Users/{user}/AppData/Local/YTMP3/parameter.json")
+        MacOS.createParam(user)
 
+    elif (platform == 'Windows' or platform == 'win32'):
+        pathLL = Path(fr"C:/Users/{user}/AppData/LocalLow/YTMP3/parameter.json")
+        Windows.createParam(user)
+    return pathLL
+
+
+def GetAPI(key, pathLL):
+    param = GetParam()
     with open(pathLL, "w") as FW:
         if param["apiKeys"] == [""]:
             param["apiKeys"] = [key]
@@ -128,17 +108,28 @@ def GetAPI(key):
             json.dump(param, FW)
 
     print("Key added \n")
-    main()
 
 
-def ChangeTargetFile(target):
+def ChangeTargetFile(target, pathLL):
+    param = GetParam()
     with open(pathLL, "w") as FW:
         param["filePath"] = target
         json.dump(param, FW)
-    musicFolder = target
     print("target path changed")
-    main()
+
+def getY(musicFolder, APIkey):
+    if APIkey == [""]:
+        print("no APIkey")
+    else:
+        i = input("YT link:\n")
+        if 'playlist' in i:
+            GetYtPlay(i, musicFolder, APIkey)
+        else:
+            high, yts = GetYtVid(i, musicFolder)
+            if (platform == 'Darwin' or platform == 'darwin'):
+                MacOS.Download_and_sort(high, yts, musicFolder, APIkey)
+            elif (platform == 'Windows' or platform == 'win32'):
+                Windows.Download_and_sort(high, yts, musicFolder, APIkey)
 
 
-while (True):
-    main()
+main(GetParam()["filePath"], GetParam()["apiKeys"], getPathLL())

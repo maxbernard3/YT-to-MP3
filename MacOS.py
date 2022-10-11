@@ -1,5 +1,4 @@
 from os import path
-from sys import platform
 import os
 import random
 from Comon import remove
