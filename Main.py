@@ -23,7 +23,7 @@ import Windows
 # get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
 # works with array so you can create many free acount
 
-def main(musFolder, keys, pathLL):
+def interact(musFolder, keys, pathLL):
     if keys == [""]:
         print(
             "No API Key, type -A to add one\nGo on https://rapidapi.com/apidojo/api/shazam/pricing to get a free API key")
@@ -32,21 +32,21 @@ def main(musFolder, keys, pathLL):
 
     if "help" in l:
         print("\n-Y to enter YT link (autoclasificasion)\n-N to enter YT link (no clasificasion)\n-T to change save path\n-A to add API keys")
-        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
+        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
     elif '-A' in l:
         i = input("API key:\n")
         GetAPI(i, pathLL)
-        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
+        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
     elif '-Y' in l:
         getY(musFolder, keys)
-        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
+        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
     elif '-T' in l:
         i = input("new file Path:\n")
         ChangeTargetFile(i, pathLL)
-        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
+        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
     else:
         print("invalid comand")
-        main(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
+        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
 
 
 def GetParam():
@@ -131,5 +131,5 @@ def getY(musicFolder, APIkey):
             elif (platform == 'Windows' or platform == 'win32'):
                 Windows.Download_and_sort(high, yts, musicFolder, APIkey)
 
-
-main(GetParam()["filePath"], GetParam()["apiKeys"], getPathLL())
+if __name__ == "__main__":
+    interact(GetParam()["filePath"], GetParam()["apiKeys"], getPathLL())
