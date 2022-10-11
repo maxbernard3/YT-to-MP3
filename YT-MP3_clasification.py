@@ -22,9 +22,10 @@ from pathlib import Path
 
 #need this to get appdata/local
 user = os.getlogin()
-musicFolder = ""
-APIkey = []
-pathLL = ""
+global musicFolder
+global APIkey
+global pathLL
+
 
 def createParamWin():
     musPath = (r"C:\\Users\\% s\\Music"%user)
@@ -56,6 +57,7 @@ def createParamMac():
             f.write(paramJson)
             f.close()
 
+
 if (platform == 'Darwin' or platform == 'darwin'):
     import requests
     pathLL = Path(f"/Users/{user}/AppData/Local/YTMP3/parameter.json")
@@ -65,6 +67,11 @@ elif (platform == 'Windows' or platform == 'win32'):
     import http.client
     pathLL = Path(fr"C:/Users/{user}/AppData/LocalLow/YTMP3/parameter.json")
     createParamWin()
+
+with open(pathLL, "r") as data:
+    param = json.load(data)
+    musicFolder = Path(param["filePath"])
+    APIkey = param["apiKeys"]
 
 # create a rapid api acount(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
 # get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
@@ -79,17 +86,17 @@ def main():
             print(
                 "No API Key, type -A to add one\nGo on https://rapidapi.com/apidojo/api/shazam/pricing to get a free API key")
 
-    print(musicFolder)
     l = input("help to see comand\n")
 
     if "help" in l:
-        print("-A to add API keys \n-Y to enter YT link\n-P to change save path\n")
-
-    if '-A' in l:
+        print("-A to add API keys \n-Y to enter YT link\n-T to change save path\n")
+        main()
+    elif '-A' in l:
+        i = input("API key:\n")
         i = input("API key:\n")
         GetAPI(i)
 
-    if '-Y' in l:
+    elif '-Y' in l:
         i = input("YT link:\n")
         if 'playlist' in i:
             GetYtPlay(i)
@@ -97,7 +104,12 @@ def main():
             high, yts = GetYtVid(i)
             Download_and_sort(high, yts)
         main()
-
+    elif '-T' in l:
+        i = input("new file Path:\n")
+        ChangeTargetFile(i)
+    else:
+        print("invalid comand")
+        main()
 
 def remove(string):
     b = r"!@#$/.()\'&"
@@ -233,6 +245,15 @@ def GetAPI(key):
             json.dump(param, FW)
 
     print("Key added \n")
+    main()
+
+
+def ChangeTargetFile(target):
+    with open(pathLL, "w") as FW:
+        param["filePath"] = target
+        json.dump(param, FW)
+    musicFolder = target
+    print("target path changed")
     main()
 
 
