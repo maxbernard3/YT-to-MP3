@@ -18,6 +18,7 @@ from os import path
 import json
 import base64
 from sys import platform
+from pathlib import Path
 
 #need this to get appdata/local
 user = os.getlogin()
@@ -26,20 +27,24 @@ APIkey = []
 pathLL = ""
 
 def createParamWin():
-    paramJson = "{\"filePath\":\"C:\\\\Users\\\\% s\\\\Music\",\"apiKeys\":[\"\"]}"% user
+    musPath = (r"C:\\Users\\% s\\Music"%user)
+    paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
+
     if not path.exists(fr"C:\Users\{user}\AppData\LocalLow\YTMP3"):
         os.mkdir(fr"C:\Users\{user}\AppData\LocalLow\YTMP3")
-        f = open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w")
-        f.write(paramJson)
-        f.close()
+        with open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w") as p:
+            p.write(paramJson)
+
     else:
         if not path.exists(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json"):
-            f = open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w")
-            f.write(paramJson)
-            f.close()
+            with open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w") as p:
+                p.write(paramJson)
+
 
 def createParamMac():
-    paramJson = "{\"filePath\":\"/Users/% s/Music\",\"apiKeys\":[\"\"]}"% user
+    musPath = "/Users/% s/Music" %user
+    paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
+
     if not path.exists(f"/Users/{user}/AppData/Local/YTMP3"):
         os.mkdir(f"/Users/{user}/AppData/Local/YTMP3")
         f = open(f"/Users/{user}/AppData/Local/YTMP3/parameter.json", "w")
@@ -53,12 +58,12 @@ def createParamMac():
 
 if (platform == 'Darwin' or platform == 'darwin'):
     import requests
-    pathLL = f"/Users/{user}/AppData/Local/YTMP3/parameter.json"
+    pathLL = Path(f"/Users/{user}/AppData/Local/YTMP3/parameter.json")
     createParamMac()
 
 elif (platform == 'Windows' or platform == 'win32'):
     import http.client
-    pathLL = fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json"
+    pathLL = Path(fr"C:/Users/{user}/AppData/LocalLow/YTMP3/parameter.json")
     createParamWin()
 
 # create a rapid api acount(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
@@ -68,25 +73,31 @@ elif (platform == 'Windows' or platform == 'win32'):
 def main():
     with open(pathLL, "r") as data:
         param = json.load(data)
-        musicFolder = param["filePath"]
+        musicFolder = Path(param["filePath"])
         APIkey = param["apiKeys"]
         if APIkey == [""]:
             print(
                 "No API Key, type -A to add one\nGo on https://rapidapi.com/apidojo/api/shazam/pricing to get a free API key")
 
-    l = input()
+    print(musicFolder)
+    l = input("help to see comand\n")
+
+    if "help" in l:
+        print("-A to add API keys \n-Y to enter YT link\n-P to change save path\n")
 
     if '-A' in l:
-        i = input("API key:")
+        i = input("API key:\n")
         GetAPI(i)
 
     if '-Y' in l:
-        i = input("YT link:")
+        i = input("YT link:\n")
         if 'playlist' in i:
             GetYtPlay(i)
         else:
             high, yts = GetYtVid(i)
             Download_and_sort(high, yts)
+        main()
+
 
 def remove(string):
     b = r"!@#$/.()\'&"
@@ -206,7 +217,6 @@ def Download_and_sort(highest, yt):
             fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab {highest[1]}k -ar 44100 -y {musicFolder}\{track_artist}\{track_title}.mp3")
         os.system(fr"del {musicFolder}\temp.webm")
         os.system("cls")
-
 
 
 def GetAPI(key):
