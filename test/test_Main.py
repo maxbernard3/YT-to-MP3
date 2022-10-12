@@ -27,13 +27,12 @@ class TestMain(unittest.TestCase):
             Main.GetYtVid(link, rf"/Users/{os.getlogin()}/Music")
             result = os.path.exists(rf"/Users/{os.getlogin()}/Music/temp.webm")
             self.assertEqual(result, True)
-            os.remove(r"/Users/MaxBE/Music/temp.webm")
+            os.remove(rf"/Users/{os.getlogin()}/Music/temp.webm")
         elif (platform == 'Windows' or platform == 'win32'):
             Main.GetYtVid(link, rf"C:\Users\{os.getlogin()}\Music")
             result = os.path.exists(rf"C:\Users\{os.getlogin()}\Music\temp.webm")
             self.assertEqual(result, True)
             os.remove(rf"C:\Users\{os.getlogin()}\Music\temp.webm")
-
 
 if __name__ == "__main__":
     unittest.main()
