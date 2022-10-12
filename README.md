@@ -11,7 +11,8 @@ You will need the folowing instalations :
 To use, open a terminal and execute the programe with ``python [path to program]/YT-MP3_clasification.py`` and type the video or playlist URL.
 
 ## Improvement to come
-- Easier instalation
-- Linux compatibility
-- Multithreading for playlist download
-- More user friendly interface
+- [x] unit-test
+- [ ] Easier instalation
+- [ ] Linux compatibility
+- [ ] Multithreading for playlist download
+- [x] More user friendly interface
