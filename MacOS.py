@@ -63,3 +63,10 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
         f"ffmpeg -i '{musicFolder}/temp.webm' -vn -ab {highest[1]}k -ar 44100 -y '{musicFolder}/{track_artist}/{track_title}.mp3'")
     os.system(f"rm '{musicFolder}/temp.webm'")
     os.system("clear")
+
+
+def Download_no_sort(highest, yt, musicFolder):
+    track_title = f"{remove(yt.title)}"
+    os.system(f"ffmpeg -i '{musicFolder}/temp.webm' -vn -ab {highest[1]}k -ar 44100 -y '{musicFolder}/{track_title}.mp3'")
+    os.system(f"rm '{musicFolder}/temp.webm'")
+    os.system("clear")

@@ -43,6 +43,9 @@ def interact(musFolder, keys, pathLL):
     elif '-Y' == l[:2]:
         getY(musFolder, keys)
         interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
+    elif '-N' == l[:2]:
+        getN(musFolder)
+        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
     elif '-T' == l[:2]:
         i = input("new file Path:\n")
         ChangeTargetFile(i, pathLL)
@@ -86,6 +89,18 @@ def GetYtPlay(link, musicFolder, APIkey):
             Windows.Download_and_sort(high, yts, musicFolder, APIkey)
     print("\n Done")
 
+def GetYtPlayNoClasificasion(link, musicFolder):
+    p = Playlist(link)
+    i = 0
+    for vid_url in p.video_urls:
+        i += 1
+        print(f"{i} in {len(p)}")
+        high, yts = GetYtVid(vid_url, musicFolder)
+        if (platform == 'Darwin' or platform == 'darwin'):
+             MacOS.Download_no_sort(high, yts, musicFolder)
+        elif(platform == 'Windows' or platform == 'win32'):
+            Windows.Download_no_sort(high, yts, musicFolder)
+    print("\n Done")
 
 def getPathLL():
     user = os.getlogin()
@@ -112,6 +127,7 @@ def GetAPI(key, pathLL):
 
     print("Key added \n")
 
+
 def RemoveAPI(pathLL):
     param = GetParam()
     with open(pathLL, "w") as FW:
@@ -121,11 +137,10 @@ def RemoveAPI(pathLL):
             else:
                 param["apiKeys"].pop()
             json.dump(param, FW)
+            print("Key Removed\n")
         else:
+            json.dump(param, FW)
             print("No API key to remove")
-
-    print("Key Removed\n")
-
 
 def ChangeTargetFile(target, pathLL):
     param = GetParam()
@@ -133,6 +148,7 @@ def ChangeTargetFile(target, pathLL):
         param["filePath"] = target
         json.dump(param, FW)
     print("target path changed")
+
 
 def getY(musicFolder, APIkey):
     if APIkey == [""]:
@@ -147,6 +163,19 @@ def getY(musicFolder, APIkey):
                 MacOS.Download_and_sort(high, yts, musicFolder, APIkey)
             elif (platform == 'Windows' or platform == 'win32'):
                 Windows.Download_and_sort(high, yts, musicFolder, APIkey)
+
+
+def getN(musicFolder):
+    i = input("YT link:\n")
+    if 'playlist' in i:
+        GetYtPlayNoClasificasion(i, musicFolder)
+    else:
+        high, yts = GetYtVid(i, musicFolder)
+        if (platform == 'Darwin' or platform == 'darwin'):
+            MacOS.Download_no_sort(high, yts, musicFolder)
+        elif (platform == 'Windows' or platform == 'win32'):
+            Windows.Download_no_sort(high, yts, musicFolder)
+
 
 if __name__ == "__main__":
     interact(GetParam()["filePath"], GetParam()["apiKeys"], getPathLL())
