@@ -30,17 +30,20 @@ def interact(musFolder, keys, pathLL):
 
     l = input("help to see comand\n")
 
-    if "help" in l:
-        print("\n-Y to enter YT link (autoclasificasion)\n-N to enter YT link (no clasificasion)\n-T to change save path\n-A to add API keys")
+    if "help" == l[:4]:
+        print("\n-Y to enter YT link (autoclasificasion)\n-N to enter YT link (no clasificasion)\n-T to change save path\n-A to add API keys\n-R to remove last API key")
         interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-    elif '-A' in l:
+    elif '-A' == l[:2]:
         i = input("API key:\n")
         GetAPI(i, pathLL)
         interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-    elif '-Y' in l:
+    elif '-R' == l[:2]:
+        RemoveAPI(pathLL)
+        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
+    elif '-Y' == l[:2]:
         getY(musFolder, keys)
         interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-    elif '-T' in l:
+    elif '-T' == l[:2]:
         i = input("new file Path:\n")
         ChangeTargetFile(i, pathLL)
         interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
@@ -108,6 +111,20 @@ def GetAPI(key, pathLL):
             json.dump(param, FW)
 
     print("Key added \n")
+
+def RemoveAPI(pathLL):
+    param = GetParam()
+    with open(pathLL, "w") as FW:
+        if not param["apiKeys"] == [""]:
+            if len(param["apiKeys"]) <= 1:
+                param["apiKeys"] = [""]
+            else:
+                param["apiKeys"].pop()
+            json.dump(param, FW)
+        else:
+            print("No API key to remove")
+
+    print("Key Removed\n")
 
 
 def ChangeTargetFile(target, pathLL):

@@ -23,11 +23,17 @@ class TestMain(unittest.TestCase):
 
     def test_getVid(self):
         link = "https://music.youtube.com/watch?v=qkWosGPYOUI&list=RDAMVMqkWosGPYOUI"
-        Main.GetYtVid(link ,r"C:\Users\MaxBE\Music")
-        result = os.path.exists(r"C:\Users\MaxBE\Music\temp.webm")
-        self.assertEqual(Main.getPathLL(), Path(fr"C:\Users\{os.getlogin()}\AppData\LocalLow\YTMP3\parameter.json"))
-        os.remove(r"C:\Users\MaxBE\Music\temp.webm")
-        
+        if (platform == 'Darwin' or platform == 'darwin'):
+            Main.GetYtVid(link, rf"/Users/{os.getlogin()}/Music")
+            result = os.path.exists(rf"/Users/{os.getlogin()}/Music/temp.webm")
+            self.assertEqual(result, True)
+            os.remove(r"/Users/MaxBE/Music/temp.webm")
+        elif (platform == 'Windows' or platform == 'win32'):
+            Main.GetYtVid(link, rf"C:\Users\{os.getlogin()}\Music")
+            result = os.path.exists(rf"C:\Users\{os.getlogin()}\Music\temp.webm")
+            self.assertEqual(result, True)
+            os.remove(rf"C:\Users\{os.getlogin()}\Music\temp.webm")
+
 
 if __name__ == "__main__":
     unittest.main()
