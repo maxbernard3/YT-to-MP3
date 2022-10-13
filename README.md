@@ -14,5 +14,4 @@ To use, open a terminal and execute the programe with ``python [path to program]
 - [x] unit-test
 - [ ] Easier instalation
 - [ ] Linux compatibility
-- [ ] Multithreading for playlist download
 - [x] More user friendly interface
