@@ -4,6 +4,7 @@ import random
 from Comon import remove
 import json
 import base64
+from pathlib import Path
 import http.client
 
 def createParam(user):
@@ -20,6 +21,7 @@ def createParam(user):
             with open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w") as p:
                 p.write(paramJson)
 
+    return Path(fr"C:/Users/{user}/AppData/LocalLow/YTMP3/parameter.json")
 
 def Download_and_sort(highest, yt, musicFolder, APIkey):
     track_title = f"{remove(yt.title)}"

@@ -15,9 +15,12 @@ from pytube import Playlist
 import os
 import json
 from sys import platform
-from pathlib import Path
-import MacOS
-import Windows
+import argparse
+
+if (platform == 'Darwin' or platform == 'darwin'):
+     import MacOS as sysPlat
+elif(platform == 'Windows' or platform == 'win32'):
+    import Windows as sysPlat
 
 # create a rapid api acount(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
 # get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
@@ -54,6 +57,9 @@ def interact(musFolder, keys, pathLL):
         print("invalid comand")
         interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
 
+def Parser():
+    parser = argparse.ArgumentParser(description='Process some integers.')
+
 
 def GetParam():
     with open(getPathLL(), "r") as data:
@@ -83,10 +89,7 @@ def GetYtPlay(link, musicFolder, APIkey):
         i += 1
         print(f"{i} in {len(p)}")
         high, yts = GetYtVid(vid_url, musicFolder)
-        if (platform == 'Darwin' or platform == 'darwin'):
-             MacOS.Download_and_sort(high, yts, musicFolder, APIkey)
-        elif(platform == 'Windows' or platform == 'win32'):
-            Windows.Download_and_sort(high, yts, musicFolder, APIkey)
+        sysPlat.Download_and_sort(high, yts, musicFolder, APIkey)
     print("\n Done")
 
 def GetYtPlayNoClasificasion(link, musicFolder):
@@ -96,23 +99,12 @@ def GetYtPlayNoClasificasion(link, musicFolder):
         i += 1
         print(f"{i} in {len(p)}")
         high, yts = GetYtVid(vid_url, musicFolder)
-        if (platform == 'Darwin' or platform == 'darwin'):
-             MacOS.Download_no_sort(high, yts, musicFolder)
-        elif(platform == 'Windows' or platform == 'win32'):
-            Windows.Download_no_sort(high, yts, musicFolder)
+        sysPlat.Download_no_sort(high, yts, musicFolder)
     print("\n Done")
 
 def getPathLL():
     user = os.getlogin()
-    pathLL = ""
-    if (platform == 'Darwin' or platform == 'darwin'):
-        pathLL = Path(f"/Users/{user}/AppData/Local/YTMP3/parameter.json")
-        MacOS.createParam(user)
-
-    elif (platform == 'Windows' or platform == 'win32'):
-        pathLL = Path(fr"C:/Users/{user}/AppData/LocalLow/YTMP3/parameter.json")
-        Windows.createParam(user)
-    return pathLL
+    return sysPlat.createParam(user)
 
 
 def GetAPI(key, pathLL):
@@ -159,10 +151,7 @@ def getY(musicFolder, APIkey):
             GetYtPlay(i, musicFolder, APIkey)
         else:
             high, yts = GetYtVid(i, musicFolder)
-            if (platform == 'Darwin' or platform == 'darwin'):
-                MacOS.Download_and_sort(high, yts, musicFolder, APIkey)
-            elif (platform == 'Windows' or platform == 'win32'):
-                Windows.Download_and_sort(high, yts, musicFolder, APIkey)
+            sysPlat.Download_and_sort(high, yts, musicFolder, APIkey)
 
 
 def getN(musicFolder):
@@ -171,10 +160,7 @@ def getN(musicFolder):
         GetYtPlayNoClasificasion(i, musicFolder)
     else:
         high, yts = GetYtVid(i, musicFolder)
-        if (platform == 'Darwin' or platform == 'darwin'):
-            MacOS.Download_no_sort(high, yts, musicFolder)
-        elif (platform == 'Windows' or platform == 'win32'):
-            Windows.Download_no_sort(high, yts, musicFolder)
+        sysPlat.Download_no_sort(high, yts, musicFolder)
 
 
 if __name__ == "__main__":
