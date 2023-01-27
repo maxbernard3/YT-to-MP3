@@ -26,40 +26,15 @@ elif(platform == 'Windows' or platform == 'win32'):
 # get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
 # works with array so you can create many free acount
 
-def interact(musFolder, keys, pathLL):
-    if keys == [""]:
-        print(
-            "No API Key, type -A to add one\nGo on https://rapidapi.com/apidojo/api/shazam/pricing to get a free API key")
+# Parser
+parser = argparse.ArgumentParser(description='Run YT download and conversion')
+parser.add_argument('-N', '--noclass', dest="no_class", help='download without clasification')
+parser.add_argument('-Y', '--ytclass', dest="yt_class", help='download and clasify by artist')
+parser.add_argument('-A', '--api', dest="apikey", help='add API key for autoclasification')
+parser.add_argument('--rmapi', dest="rmapi", help='remove the last added API key')
+parser.add_argument('-T', '--targetdir', dest="targetdir", help='change save path')
 
-    l = input("help to see comand\n")
-
-    if "help" == l[:4]:
-        print("\n-Y to enter YT link (autoclasificasion)\n-N to enter YT link (no clasificasion)\n-T to change save path\n-A to add API keys\n-R to remove last API key")
-        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-    elif '-A' == l[:2]:
-        i = input("API key:\n")
-        GetAPI(i, pathLL)
-        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-    elif '-R' == l[:2]:
-        RemoveAPI(pathLL)
-        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-    elif '-Y' == l[:2]:
-        getY(musFolder, keys)
-        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-    elif '-N' == l[:2]:
-        getN(musFolder)
-        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-    elif '-T' == l[:2]:
-        i = input("new file Path:\n")
-        ChangeTargetFile(i, pathLL)
-        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-    else:
-        print("invalid comand")
-        interact(GetParam()["filePath"], GetParam()["apiKeys"], pathLL)
-
-def Parser():
-    parser = argparse.ArgumentParser(description='Process some integers.')
-
+args = parser.parse_args()
 
 def GetParam():
     with open(getPathLL(), "r") as data:
@@ -142,11 +117,10 @@ def ChangeTargetFile(target, pathLL):
     print("target path changed")
 
 
-def getY(musicFolder, APIkey):
+def getY(i, musicFolder, APIkey):
     if APIkey == [""]:
-        print("no APIkey")
+        print("no APIkey so can't clasify")
     else:
-        i = input("YT link:\n")
         if 'playlist' in i:
             GetYtPlay(i, musicFolder, APIkey)
         else:
@@ -154,14 +128,27 @@ def getY(musicFolder, APIkey):
             sysPlat.Download_and_sort(high, yts, musicFolder, APIkey)
 
 
-def getN(musicFolder):
-    i = input("YT link:\n")
+def getN(i, musicFolder):
     if 'playlist' in i:
         GetYtPlayNoClasificasion(i, musicFolder)
     else:
         high, yts = GetYtVid(i, musicFolder)
         sysPlat.Download_no_sort(high, yts, musicFolder)
 
+if args.no_class:
+    getN(args.no_class, GetParam()["filePath"])
 
-if __name__ == "__main__":
-    interact(GetParam()["filePath"], GetParam()["apiKeys"], getPathLL())
+if args.yt_class:
+    getY(args.yt_class, GetParam()["filePath"], GetParam()["apiKeys"])
+
+if args.apikey:
+    GetAPI(GetParam()["apiKeys"], GetParam()["filePath"])
+
+if args.apikey:
+    GetAPI(args.apikey, GetParam()["filePath"])
+
+if args.rmapi:
+    RemoveAPI(GetParam()["filePath"])
+
+if args.targetdir:
+    ChangeTargetFile(args.targetdir, GetParam()["filePath"])
