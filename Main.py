@@ -98,13 +98,12 @@ def GetAPI(key):
             param["apiKeys"].append(key)
             json.dump(param, FW)
 
-    print("Key added \n")
+    print("Key added")
     
 def ListAPI():
     param = GetParam()
     for i in param["apiKeys"]:
         print(i)
-    print('\n')
 
 def RemoveAPI():
     param = GetParam()
@@ -115,7 +114,7 @@ def RemoveAPI():
             else:
                 param["apiKeys"].pop()
             json.dump(param, FW)
-            print("Key Removed\n")
+            print("Key Removed")
         else:
             json.dump(param, FW)
             print("No API key to remove")
