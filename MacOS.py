@@ -7,12 +7,13 @@ import base64
 from pathlib import Path
 import requests
 
-def createParam(user):
+def createParam():
+    user = user = os.getlogin()
     musPath = "/Users/% s/Music" %user
     paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
 
     if not path.exists(f"/Users/{user}/AppData/Local/YTMP3"):
-        os.mkdir(f"/Users/{user}/AppData/Local/YTMP3")
+        os.makedirs(f"/Users/{user}/AppData/Local/YTMP3")
         f = open(f"/Users/{user}/AppData/Local/YTMP3/parameter.json", "w")
         f.write(paramJson)
         f.close()
@@ -36,7 +37,7 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
 
         f = open(f'{musicFolder}/temp.wav', 'rb')
         file_content = base64.b64encode(f.read())
-        os.system(f"rm '{musicFolder}/temp.wav'")
+        os.remove(f"{musicFolder}/temp.wav")
         f.close()
 
         url = "https://shazam.p.rapidapi.com/songs/v2/detect"
@@ -48,10 +49,9 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
         }
 
         response = requests.request("POST", url, data=payload, headers=headers)
-        os.system("clear")
 
         json_data = json.loads(f"{response.text}")
-
+        
         if (json_data['matches'] != []):
             track_title = remove(json_data['track']['title'])
             track_artist = remove(json_data['track']['subtitle'])
@@ -60,16 +60,14 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
         iter += 1
 
     if (os.path.isdir(f"{musicFolder}/{track_artist}") == False):
-        os.mkdir(f"{musicFolder}/{track_artist}")
+        os.makedirs(f"{musicFolder}/{track_artist}")
 
     os.system(
         f"ffmpeg -i '{musicFolder}/temp.webm' -vn -ab {highest[1]}k -ar 44100 -y '{musicFolder}/{track_artist}/{track_title}.mp3'")
-    os.system(f"rm '{musicFolder}/temp.webm'")
-    os.system("clear")
+    os.remove(f"{musicFolder}/temp.webm")
 
 
 def Download_no_sort(highest, yt, musicFolder):
     track_title = f"{remove(yt.title)}"
     os.system(f"ffmpeg -i '{musicFolder}/temp.webm' -vn -ab {highest[1]}k -ar 44100 -y '{musicFolder}/{track_title}.mp3'")
-    os.system(f"rm '{musicFolder}/temp.webm'")
-    os.system("clear")
+    os.remove(f"{musicFolder}/temp.webm")

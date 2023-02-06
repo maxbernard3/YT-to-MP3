@@ -7,12 +7,13 @@ import base64
 from pathlib import Path
 import http.client
 
-def createParam(user):
+def createParam():
+    user = user = os.getlogin()
     musPath = (r"C:\\Users\\% s\\Music"%user)
     paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
 
     if not path.exists(fr"C:\Users\{user}\AppData\LocalLow\YTMP3"):
-        os.mkdir(fr"C:\Users\{user}\AppData\LocalLow\YTMP3")
+        os.makedirs(fr"C:\Users\{user}\AppData\LocalLow\YTMP3")
         with open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w") as p:
             p.write(paramJson)
 
@@ -48,7 +49,6 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
         res = conn.getresponse()
         data = res.read()
         response = data.decode("utf-8")
-        os.system("cls")
 
         json_data = json.loads(response)
 
@@ -57,20 +57,18 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
             track_artist = remove(json_data['track']['subtitle'])
             iter = 6
 
-        os.system(fr"del {musicFolder}\temp.wav")
+        os.remove(f"{musicFolder}\temp.wav")
         iter += 1
 
         if (os.path.isdir(fr"{musicFolder}\{track_artist}") == False):
-            os.mkdir(fr"{musicFolder}\{track_artist}")
+            os.makedirs(fr"{musicFolder}\{track_artist}")
 
         os.system(
             fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab {highest[1]}k -ar 44100 -y {musicFolder}\{track_artist}\{track_title}.mp3")
-        os.system(fr"del {musicFolder}\temp.webm")
-        os.system("cls")
+        os.remove(f"{musicFolder}\temp.webm")
 
 
 def Download_no_sort(highest, yt, musicFolder):
     track_title = f"{remove(yt.title)}"
     os.system(fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab {highest[1]}k -ar 44100 -y {musicFolder}\{track_title}.mp3")
-    os.system(fr"del {musicFolder}\temp.webm")
-    os.system("cls")
+    os.remove(f"{musicFolder}\temp.webm")
