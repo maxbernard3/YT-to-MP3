@@ -28,16 +28,27 @@ elif(platform == 'Windows' or platform == 'win32'):
 
 # Parser
 parser = argparse.ArgumentParser(description='Run YT download and conversion')
-parser.add_argument('-N', '--noclass', dest="no_class", help='download without clasification')
-parser.add_argument('-Y', '--ytclass', dest="yt_class", help='download and clasify by artist')
-parser.add_argument('-A', '--api', dest="apikey", help='add API key for autoclasification')
-parser.add_argument('--rmapi', dest="rmapi", help='remove the last added API key')
-parser.add_argument('-T', '--targetdir', dest="targetdir", help='change save path')
+parser.add_argument('-N', '--noclass', dest='no_class', action='store',
+                    help='download without clasification', type=str)
+parser.add_argument('-C', '--ytclass', dest="yt_class", action="store",
+                    help='download and clasify by artist', type=str)
+parser.add_argument('-A', '--api', dest="apikey", action='store',
+                    help='add API key for autoclasification', type=str)
+parser.add_argument('-L', '--apilist', dest="apilist", action='store_true',
+                    help='show all saved API key')
+parser.add_argument('--rmapi', dest="rmapi", action='store_true',
+                    help='remove the last added API key')
+parser.add_argument('-T', '--targetdir', dest="targetdir", action='store',
+                    help='change save path', type=str)
 
 args = parser.parse_args()
+if args.no_class and args.yt_class:
+    raise ValueError('cant have both clasification and non classification')
+
+pathLL = sysPlat.createParam()
 
 def GetParam():
-    with open(getPathLL(), "r") as data:
+    with open(pathLL, "r") as data:
         param = json.load(data)
     return param
 
@@ -77,12 +88,7 @@ def GetYtPlayNoClasificasion(link, musicFolder):
         sysPlat.Download_no_sort(high, yts, musicFolder)
     print("\n Done")
 
-def getPathLL():
-    user = os.getlogin()
-    return sysPlat.createParam(user)
-
-
-def GetAPI(key, pathLL):
+def GetAPI(key):
     param = GetParam()
     with open(pathLL, "w") as FW:
         if param["apiKeys"] == [""]:
@@ -93,9 +99,14 @@ def GetAPI(key, pathLL):
             json.dump(param, FW)
 
     print("Key added \n")
+    
+def ListAPI():
+    param = GetParam()
+    for i in param["apiKeys"]:
+        print(i)
+    print('\n')
 
-
-def RemoveAPI(pathLL):
+def RemoveAPI():
     param = GetParam()
     with open(pathLL, "w") as FW:
         if not param["apiKeys"] == [""]:
@@ -109,7 +120,7 @@ def RemoveAPI(pathLL):
             json.dump(param, FW)
             print("No API key to remove")
 
-def ChangeTargetFile(target, pathLL):
+def ChangeTargetFile(target):
     param = GetParam()
     with open(pathLL, "w") as FW:
         param["filePath"] = target
@@ -135,20 +146,21 @@ def getN(i, musicFolder):
         high, yts = GetYtVid(i, musicFolder)
         sysPlat.Download_no_sort(high, yts, musicFolder)
 
+
+if args.apikey:
+    GetAPI(args.apikey)
+    
+if args.apilist:
+    ListAPI()
+
+if args.rmapi:
+    RemoveAPI()
+
+if args.targetdir:
+    ChangeTargetFile(args.targetdir)
+    
 if args.no_class:
     getN(args.no_class, GetParam()["filePath"])
 
 if args.yt_class:
     getY(args.yt_class, GetParam()["filePath"], GetParam()["apiKeys"])
-
-if args.apikey:
-    GetAPI(GetParam()["apiKeys"], GetParam()["filePath"])
-
-if args.apikey:
-    GetAPI(args.apikey, GetParam()["filePath"])
-
-if args.rmapi:
-    RemoveAPI(GetParam()["filePath"])
-
-if args.targetdir:
-    ChangeTargetFile(args.targetdir, GetParam()["filePath"])

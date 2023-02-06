@@ -7,12 +7,13 @@ import base64
 from pathlib import Path
 import http.client
 
-def createParam(user):
+def createParam():
+    user = user = os.getlogin()
     musPath = (r"C:\\Users\\% s\\Music"%user)
     paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
 
     if not path.exists(fr"C:\Users\{user}\AppData\LocalLow\YTMP3"):
-        os.mkdir(fr"C:\Users\{user}\AppData\LocalLow\YTMP3")
+        os.makedirs(fr"C:\Users\{user}\AppData\LocalLow\YTMP3")
         with open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w") as p:
             p.write(paramJson)
 
@@ -60,7 +61,7 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
         iter += 1
 
         if (os.path.isdir(fr"{musicFolder}\{track_artist}") == False):
-            os.mkdir(fr"{musicFolder}\{track_artist}")
+            os.makedirs(fr"{musicFolder}\{track_artist}")
 
         os.system(
             fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab {highest[1]}k -ar 44100 -y {musicFolder}\{track_artist}\{track_title}.mp3")
