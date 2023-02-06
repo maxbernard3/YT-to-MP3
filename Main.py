@@ -28,10 +28,10 @@ elif(platform == 'Windows' or platform == 'win32'):
 
 # Parser
 parser = argparse.ArgumentParser(description='Run YT download and conversion')
-parser.add_argument('-N', '--noclass', dest='no_class', action='store',
-                    help='download without clasification', type=str)
-parser.add_argument('-C', '--ytclass', dest="yt_class", action="store",
-                    help='download and clasify by artist', type=str)
+parser.add_argument('-N', '--noclass', dest='no_class', action='store_true',
+                    help='download without clasification')
+parser.add_argument('-C', '--ytclass', dest="yt_class", action="store_true",
+                    help='download and clasify by artist')
 parser.add_argument('-A', '--api', dest="apikey", action='store',
                     help='add API key for autoclasification', type=str)
 parser.add_argument('-L', '--apilist', dest="apilist", action='store_true',
@@ -159,7 +159,23 @@ if args.targetdir:
     ChangeTargetFile(args.targetdir)
     
 if args.no_class:
-    getN(args.no_class, GetParam()["filePath"])
+    A = True
+    while A:
+        print("type 'exit' to close the program")
+        link = str(input("link: "))
+        if link == "exit":
+            A = False
+        else:
+            getN(link, GetParam()["filePath"])
+            print("done")
 
 if args.yt_class:
-    getY(args.yt_class, GetParam()["filePath"], GetParam()["apiKeys"])
+    A = True
+    while A:
+        print("type 'exit' to close the program")
+        link = str(input("link: "))
+        if link == "exit":
+            A = False
+        else:
+            getY(link, GetParam()["filePath"], GetParam()["apiKeys"])
+            print("done")

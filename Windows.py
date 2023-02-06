@@ -57,7 +57,7 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
             track_artist = remove(json_data['track']['subtitle'])
             iter = 6
 
-        os.system(fr"del {musicFolder}\temp.wav")
+        os.remove(f"{musicFolder}\temp.wav")
         iter += 1
 
         if (os.path.isdir(fr"{musicFolder}\{track_artist}") == False):
@@ -65,10 +65,10 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
 
         os.system(
             fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab {highest[1]}k -ar 44100 -y {musicFolder}\{track_artist}\{track_title}.mp3")
-        os.system(fr"del {musicFolder}\temp.webm")
+        os.remove(f"{musicFolder}\temp.webm")
 
 
 def Download_no_sort(highest, yt, musicFolder):
     track_title = f"{remove(yt.title)}"
     os.system(fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab {highest[1]}k -ar 44100 -y {musicFolder}\{track_title}.mp3")
-    os.system(fr"del {musicFolder}\temp.webm")
+    os.remove(f"{musicFolder}\temp.webm")
