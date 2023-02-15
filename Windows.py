@@ -24,6 +24,35 @@ def createParam():
 
     return Path(fr"C:/Users/{user}/AppData/LocalLow/YTMP3/parameter.json")
 
+
+def convert_to_base64(musicFolder):
+    os.system(
+        fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab 64k -ar 44100 -ss 00:00:{iter * 10} -ac 1 -fs 350000 -y {musicFolder}\temp.wav")
+
+    f = open(fr'{musicFolder}\temp.wav', 'rb')
+    file_content = base64.b64encode(f.read())
+    f.close()
+
+    return file_content
+
+
+def question_api(file_content, APIkey):
+    conn = http.client.HTTPSConnection("shazam.p.rapidapi.com")
+    payload = file_content
+    headers = {
+        "content-type": "text/plain",
+        f"X-RapidAPI-Key": str(APIkey[random.randint(0, len(APIkey) - 1)]),
+        "X-RapidAPI-Host": "shazam.p.rapidapi.com"
+    }
+
+    conn.request("POST", "/songs/v2/detect?timezone=America%2FChicago&locale=en-US", payload, headers)
+    res = conn.getresponse()
+    data = res.read()
+    response = data.decode("utf-8")
+    json_data = json.loads(response)
+
+    return json_data
+
 def Download_and_sort(highest, yt, musicFolder, APIkey):
     track_title = f"{remove(yt.title)}"
     track_artist = f"NotFound"
@@ -31,26 +60,8 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
     iter = 0
 
     while (iter < 5):
-        os.system(fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab 64k -ar 44100 -ss 00:00:{iter * 10} -ac 1 -fs 350000 -y {musicFolder}\temp.wav")
-
-        f = open(fr'{musicFolder}\temp.wav', 'rb')
-        file_content = base64.b64encode(f.read())
-        f.close()
-
-        conn = http.client.HTTPSConnection("shazam.p.rapidapi.com")
-        payload = file_content
-        headers = {
-            "content-type": "text/plain",
-            f"X-RapidAPI-Key": str(APIkey[random.randint(0, len(APIkey) - 1)]),
-            "X-RapidAPI-Host": "shazam.p.rapidapi.com"
-        }
-
-        conn.request("POST", "/songs/v2/detect?timezone=America%2FChicago&locale=en-US", payload, headers)
-        res = conn.getresponse()
-        data = res.read()
-        response = data.decode("utf-8")
-
-        json_data = json.loads(response)
+        file_content = convert_to_base64(musicFolder)
+        json_data = question_api(file_content, APIkey)
 
         if (json_data['matches'] != []):
             track_title = remove(json_data['track']['title'])
