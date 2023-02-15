@@ -1,16 +1,16 @@
 from os import path
 import os
-import random
 from Comon import remove
+from Comon import select_api
 import json
 import base64
 from pathlib import Path
 import requests
 
 def createParam():
-    user = user = os.getlogin()
+    user = os.getlogin()
     musPath = "/Users/% s/Music" %user
-    paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
+    paramJson = '{"filePath": "% s","apiKeys": [""], "remainingUses": [0]}'%musPath
 
     if not path.exists(f"/Users/{user}/AppData/Local/YTMP3"):
         os.makedirs(f"/Users/{user}/AppData/Local/YTMP3")
@@ -26,9 +26,9 @@ def createParam():
     return Path(f"/Users/{user}/AppData/Local/YTMP3/parameter.json")
 
 
-def convert_to_base64(music_folder):
+def convert_to_base64(music_folder, iterator):
     os.system(
-        f"ffmpeg -i '{music_folder}/temp.webm' -vn -ab 64k -ar 44100 -ss 00:00:{iter * 10} -ac 1 -fs 350000 -y '{musicFolder}/temp.wav'")
+        f"ffmpeg -i '{music_folder}/temp.webm' -vn -ab 64k -ar 44100 -ss 00:00:{iterator * 10} -ac 1 -fs 350000 -y '{music_folder}/temp.wav'")
 
     f = open(f'{music_folder}/temp.wav', 'rb')
     file_content = base64.b64encode(f.read())
@@ -37,38 +37,49 @@ def convert_to_base64(music_folder):
     return file_content
 
 
-def question_api(file_content, APIkey):
+def question_api(file_content, apikey, remaining_use):
+    index = select_api(remaining_use)
+
     url = "https://shazam.p.rapidapi.com/songs/v2/detect"
     payload = file_content
     headers = {
         "content-type": "text/plain",
-        f"X-RapidAPI-Key": str(APIkey[random.randint(0, len(APIkey) - 1)]),
+        f"X-RapidAPI-Key": str(apikey[index]),
         "X-RapidAPI-Host": "shazam.p.rapidapi.com"
     }
 
     response = requests.request("POST", url, data=payload, headers=headers)
     json_data = json.loads(f"{response.text}")
 
-    return json_data
+    i_remaining_uses = (index, int(response.headers["X-RateLimit-Requests-Remaining"]))
 
-def Download_and_sort(highest, yt, musicFolder, APIkey):
+    return json_data, i_remaining_uses
+
+
+def Download_and_sort(highest, yt, param):
+    musicFolder = param["filePath"]
+    APIkey = param["apiKeys"]
+    remaining_use = param["remainingUses"]
+
     track_title = f"{remove(yt.title)}"
     track_artist = f"NotFound"
 
-    iter = 0
+    iterator = 0
 
-    while (iter < 5):
-        file_content = convert_to_base64(musicFolder)
-        json_data = question_api(file_content, APIkey)
+    while iterator < 5:
+        file_content = convert_to_base64(musicFolder, iterator)
+        json_data, i_remaining_uses = question_api(file_content, APIkey, remaining_use)
+
+        update_remaining(param, i_remaining_uses)
         
-        if (json_data['matches'] != []):
+        if json_data['matches']:
             track_title = remove(json_data['track']['title'])
             track_artist = remove(json_data['track']['subtitle'])
-            iter = 6
+            iterator = 6
 
-        iter += 1
+        iterator += 1
 
-    if (os.path.isdir(f"{musicFolder}/{track_artist}") == False):
+    if not os.path.isdir(f"{musicFolder}/{track_artist}"):
         os.makedirs(f"{musicFolder}/{track_artist}")
 
     os.system(
@@ -80,3 +91,11 @@ def Download_no_sort(highest, yt, musicFolder):
     track_title = f"{remove(yt.title)}"
     os.system(f"ffmpeg -i '{musicFolder}/temp.webm' -vn -ab {highest[1]}k -ar 44100 -y '{musicFolder}/{track_title}.mp3'")
     os.remove(f"{musicFolder}/temp.webm")
+
+
+def update_remaining(param, i_remaining):
+    json_path = createParam()
+
+    with open(json_path, "w") as FW:
+        param["remainingUses"][i_remaining[0]] = i_remaining[1]
+        json.dump(param, FW)

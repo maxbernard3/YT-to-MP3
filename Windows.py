@@ -1,6 +1,6 @@
 from os import path
 import os
-import random
+from Comon import select_api
 from Comon import remove
 import json
 import base64
@@ -8,7 +8,7 @@ from pathlib import Path
 import http.client
 
 def createParam():
-    user = user = os.getlogin()
+    user = os.getlogin()
     musPath = (r"C:\\Users\\% s\\Music"%user)
     paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
 
@@ -25,23 +25,25 @@ def createParam():
     return Path(fr"C:/Users/{user}/AppData/LocalLow/YTMP3/parameter.json")
 
 
-def convert_to_base64(musicFolder):
+def convert_to_base64(music_folder, iterator):
     os.system(
-        fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab 64k -ar 44100 -ss 00:00:{iter * 10} -ac 1 -fs 350000 -y {musicFolder}\temp.wav")
+        fr"ffmpeg -i {music_folder}\temp.webm -vn -ab 64k -ar 44100 -ss 00:00:{iterator * 10} -ac 1 -fs 350000 -y {music_folder}\temp.wav")
 
-    f = open(fr'{musicFolder}\temp.wav', 'rb')
+    f = open(fr'{music_folder}\temp.wav', 'rb')
     file_content = base64.b64encode(f.read())
     f.close()
 
     return file_content
 
 
-def question_api(file_content, APIkey):
+def question_api(file_content, apikey, remaining_use):
+    index = select_api(remaining_use)
+
     conn = http.client.HTTPSConnection("shazam.p.rapidapi.com")
     payload = file_content
     headers = {
         "content-type": "text/plain",
-        f"X-RapidAPI-Key": str(APIkey[random.randint(0, len(APIkey) - 1)]),
+        f"X-RapidAPI-Key": str(apikey[index]),
         "X-RapidAPI-Host": "shazam.p.rapidapi.com"
     }
 
@@ -53,15 +55,19 @@ def question_api(file_content, APIkey):
 
     return json_data
 
-def Download_and_sort(highest, yt, musicFolder, APIkey):
+def Download_and_sort(highest, yt, param):
+    musicFolder = param["filePath"]
+    APIkey = param["apiKeys"]
+    remaining_use = param["remainingUses"]
+
     track_title = f"{remove(yt.title)}"
     track_artist = f"NotFound"
 
-    iter = 0
+    iterator = 0
 
-    while (iter < 5):
-        file_content = convert_to_base64(musicFolder)
-        json_data = question_api(file_content, APIkey)
+    while (iterator < 5):
+        file_content = convert_to_base64(musicFolder, iterator)
+        json_data = question_api(file_content, APIkey, remaining_use)
 
         if (json_data['matches'] != []):
             track_title = remove(json_data['track']['title'])
@@ -69,7 +75,7 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
             iter = 6
 
         os.remove(f"{musicFolder}\temp.wav")
-        iter += 1
+        iterator += 1
 
         if (os.path.isdir(fr"{musicFolder}\{track_artist}") == False):
             os.makedirs(fr"{musicFolder}\{track_artist}")

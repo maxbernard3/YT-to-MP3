@@ -17,9 +17,9 @@ import json
 from sys import platform
 import argparse
 
-if (platform == 'Darwin' or platform == 'darwin'):
-     import MacOS as sysPlat
-elif(platform == 'Windows' or platform == 'win32'):
+if platform == 'Darwin' or platform == 'darwin':
+    import MacOS as sysPlat
+elif platform == 'Windows' or platform == 'win32':
     import Windows as sysPlat
 
 # create a rapid api acount(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
@@ -47,6 +47,7 @@ if args.no_class and args.yt_class:
 
 pathLL = sysPlat.createParam()
 
+
 def GetParam():
     with open(pathLL, "r") as data:
         param = json.load(data)
@@ -68,15 +69,17 @@ def GetYtVid(link, musicFolder):
     return (highest, yt)
 
 
-def GetYtPlay(link, musicFolder, APIkey):
+def GetYtPlay(link):
     p = Playlist(link)
     i = 0
     for vid_url in p.video_urls:
+        param = GetParam()
         i += 1
         print(f"{i} in {len(p)}")
-        high, yts = GetYtVid(vid_url, musicFolder)
-        sysPlat.Download_and_sort(high, yts, musicFolder, APIkey)
+        high, yts = GetYtVid(vid_url, param["filePath"])
+        sysPlat.Download_and_sort(high, yts, param)
     print("\n Done")
+
 
 def GetYtPlayNoClasificasion(link, musicFolder):
     p = Playlist(link)
@@ -88,22 +91,27 @@ def GetYtPlayNoClasificasion(link, musicFolder):
         sysPlat.Download_no_sort(high, yts, musicFolder)
     print("\n Done")
 
+
 def GetAPI(key):
     param = GetParam()
     with open(pathLL, "w") as FW:
         if param["apiKeys"] == [""]:
             param["apiKeys"] = [key]
+            param["remainingUses"] = [500]
             json.dump(param, FW)
         else:
             param["apiKeys"].append(key)
+            param["remainingUses"].append(500)
             json.dump(param, FW)
 
     print("Key added")
-    
+
+
 def ListAPI():
     param = GetParam()
-    for i in param["apiKeys"]:
-        print(i)
+    for x, key in enumerate(param["apiKeys"]):
+        print(f"{key}, remaining use {param['remainingUses'][x]}")
+
 
 def RemoveAPI():
     param = GetParam()
@@ -111,13 +119,16 @@ def RemoveAPI():
         if not param["apiKeys"] == [""]:
             if len(param["apiKeys"]) <= 1:
                 param["apiKeys"] = [""]
+                param["remainingUses"] = [0]
             else:
                 param["apiKeys"].pop()
+                param["remainingUses"].pop()
             json.dump(param, FW)
             print("Key Removed")
         else:
             json.dump(param, FW)
             print("No API key to remove")
+
 
 def ChangeTargetFile(target):
     param = GetParam()
@@ -127,15 +138,16 @@ def ChangeTargetFile(target):
     print("target path changed")
 
 
-def getY(i, musicFolder, APIkey):
-    if APIkey == [""]:
+def getY(i):
+    param = GetParam()
+    if param["apiKeys"] == [""]:
         print("no APIkey so can't clasify")
     else:
         if 'playlist' in i:
-            GetYtPlay(i, musicFolder, APIkey)
+            GetYtPlay(i)
         else:
-            high, yts = GetYtVid(i, musicFolder)
-            sysPlat.Download_and_sort(high, yts, musicFolder, APIkey)
+            high, yts = GetYtVid(i, param["filePath"])
+            sysPlat.Download_and_sort(high, yts, param)
 
 
 def getN(i, musicFolder):
@@ -145,6 +157,7 @@ def getN(i, musicFolder):
         high, yts = GetYtVid(i, musicFolder)
         sysPlat.Download_no_sort(high, yts, musicFolder)
 
+#call functions from arg parse
 
 if args.apikey:
     GetAPI(args.apikey)
@@ -177,5 +190,5 @@ if args.yt_class:
         if link == "exit":
             A = False
         else:
-            getY(link, GetParam()["filePath"], GetParam()["apiKeys"])
+            getY(link)
             print("done")
