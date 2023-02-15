@@ -12,7 +12,6 @@
 
 from pytube import YouTube
 from pytube import Playlist
-import os
 import json
 from sys import platform
 import argparse
@@ -45,17 +44,17 @@ args = parser.parse_args()
 if args.no_class and args.yt_class:
     raise ValueError('cant have both clasification and non classification')
 
-pathLL = sysPlat.createParam()
+pathLL = sysPlat.create_param()
 
 
-def GetParam():
+def get_param():
     with open(pathLL, "r") as data:
         param = json.load(data)
     return param
 
 
-def GetYtVid(link, musicFolder):
-    yt = YouTube(link)
+def get_yt_vid(yt_link, music_folder):
+    yt = YouTube(yt_link)
     ys = yt.streams.filter(only_audio=True)
 
     highest = [None, 0]
@@ -65,35 +64,39 @@ def GetYtVid(link, musicFolder):
             highest[1] = int(ys[i].abr[:len(ys[i].abr) - 4])
             highest[0] = ys[i]
 
-    highest[0].download(musicFolder, "temp.webm")
+    highest[0].download(music_folder, "temp.webm")
     return (highest, yt)
 
 
-def GetYtPlay(link):
+def get_yt_playlist(link):
+    sysPlat.check_0_remaining(get_param())
+
     p = Playlist(link)
     i = 0
     for vid_url in p.video_urls:
-        param = GetParam()
+        param = get_param()
         i += 1
         print(f"{i} in {len(p)}")
-        high, yts = GetYtVid(vid_url, param["filePath"])
-        sysPlat.Download_and_sort(high, yts, param)
+        high, yts = get_yt_vid(vid_url, param["filePath"])
+        catch = sysPlat.download_sort(high, yts, param)
+        if catch:
+            return
     print("\n Done")
 
 
-def GetYtPlayNoClasificasion(link, musicFolder):
+def get_yt_playlist_no_classification(link, musicFolder):
     p = Playlist(link)
     i = 0
     for vid_url in p.video_urls:
         i += 1
         print(f"{i} in {len(p)}")
-        high, yts = GetYtVid(vid_url, musicFolder)
-        sysPlat.Download_no_sort(high, yts, musicFolder)
+        high, yts = get_yt_vid(vid_url, musicFolder)
+        sysPlat.download_no_sort(high, yts, musicFolder)
     print("\n Done")
 
 
-def GetAPI(key):
-    param = GetParam()
+def add_api_key(key):
+    param = get_param()
     with open(pathLL, "w") as FW:
         if param["apiKeys"] == [""]:
             param["apiKeys"] = [key]
@@ -107,14 +110,15 @@ def GetAPI(key):
     print("Key added")
 
 
-def ListAPI():
-    param = GetParam()
+def list_api_keys():
+    sysPlat.check_0_remaining(get_param())
+    param = get_param()
     for x, key in enumerate(param["apiKeys"]):
         print(f"{key}, remaining use {param['remainingUses'][x]}")
 
 
-def RemoveAPI():
-    param = GetParam()
+def remove_api_key():
+    param = get_param()
     with open(pathLL, "w") as FW:
         if not param["apiKeys"] == [""]:
             if len(param["apiKeys"]) <= 1:
@@ -130,65 +134,70 @@ def RemoveAPI():
             print("No API key to remove")
 
 
-def ChangeTargetFile(target):
-    param = GetParam()
+def change_target_dir(target):
+    param = get_param()
     with open(pathLL, "w") as FW:
         param["filePath"] = target
         json.dump(param, FW)
     print("target path changed")
 
 
-def getY(i):
-    param = GetParam()
+def get_classification(i):
+    sysPlat.check_0_remaining(get_param())
+
+    param = get_param()
     if param["apiKeys"] == [""]:
         print("no APIkey so can't clasify")
     else:
         if 'playlist' in i:
-            GetYtPlay(i)
+            get_yt_playlist(i)
         else:
-            high, yts = GetYtVid(i, param["filePath"])
-            sysPlat.Download_and_sort(high, yts, param)
+            high, yts = get_yt_vid(i, param["filePath"])
+            catch = sysPlat.download_sort(high, yts, param)
+            if catch:
+                return True
 
 
-def getN(i, musicFolder):
+def get_no_classification(i, music_folder):
     if 'playlist' in i:
-        GetYtPlayNoClasificasion(i, musicFolder)
+        get_yt_playlist_no_classification(i, music_folder)
     else:
-        high, yts = GetYtVid(i, musicFolder)
-        sysPlat.Download_no_sort(high, yts, musicFolder)
+        high, yts = get_yt_vid(i, music_folder)
+        sysPlat.download_no_sort(high, yts, music_folder)
 
-#call functions from arg parse
 
+# call functions from arg parse
 if args.apikey:
-    GetAPI(args.apikey)
-    
+    add_api_key(args.apikey)
+
 if args.apilist:
-    ListAPI()
+    list_api_keys()
 
 if args.rmapi:
-    RemoveAPI()
+    remove_api_key()
 
 if args.targetdir:
-    ChangeTargetFile(args.targetdir)
-    
+    change_target_dir(args.targetdir)
+
 if args.no_class:
-    A = True
-    while A:
+    while True:
         print("type 'exit' to close the program")
         link = str(input("link: "))
         if link == "exit":
-            A = False
+            break
         else:
-            getN(link, GetParam()["filePath"])
+            get_no_classification(link, get_param()["filePath"])
             print("done")
 
 if args.yt_class:
-    A = True
-    while A:
+    while True:
         print("type 'exit' to close the program")
         link = str(input("link: "))
         if link == "exit":
-            A = False
+            break
         else:
-            getY(link)
-            print("done")
+            catch_ = get_classification(link)
+            if catch_:
+                break
+            else:
+                print("done")

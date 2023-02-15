@@ -15,5 +15,16 @@ def select_api(remaining_uses):
     for i, remain in enumerate(remaining_uses):
         if remain > 0:
             li.append(i)
-    index = random.randint(0, len(li) - 1)
-    return index
+
+    if len(li) > 0:
+        return random.randint(0, len(li) - 1)
+    else:
+        return -1
+
+
+def find_0_remaining(remaining_uses):
+    l0 = []
+    for i, remain in enumerate(remaining_uses):
+        if remain < 0 or remain == 500 or remain == 5000 or remain == 15000:
+            l0.append(i)
+    return l0
