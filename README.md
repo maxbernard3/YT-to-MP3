@@ -13,5 +13,5 @@ To use, open a terminal and execute the programe with ``python [path to program]
 ## Improvement to come
 - [x] unit-test
 - [ ] Easier instalation
-- [ ] Linux compatibility
+- [x] Linux compatibility
 - [x] More user friendly interface
