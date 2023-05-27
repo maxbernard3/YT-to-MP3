@@ -1,7 +1,7 @@
 def remove(string):
-    b = r"!@#$/.()\'&"
+    b = r"!@#$/.()\'&:,;*$%"
     for char in b:
         string = string.replace(char, "")
-    string = string.replace(" ", "-")
+    string = string.replace(" ", "_")
 
     return string

@@ -8,22 +8,22 @@ from pathlib import Path
 import requests
 
 def createParam():
-    user = user = os.getlogin()
-    musPath = "/Users/% s/Music" %user
+    home = Path.home()
+    musPath = f"{home}/Music"
     paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
 
-    if not path.exists(f"/Users/{user}/AppData/Local/YTMP3"):
-        os.makedirs(f"/Users/{user}/AppData/Local/YTMP3")
-        f = open(f"/Users/{user}/AppData/Local/YTMP3/parameter.json", "w")
+    if not path.exists(f"{home}/AppData/Local/YTMP3"):
+        os.makedirs(f"{home}/AppData/Local/YTMP3")
+        f = open(f"{home}/AppData/Local/YTMP3/parameter.json", "w")
         f.write(paramJson)
         f.close()
     else:
-        if not path.exists(f"/Users/{user}/AppData/Local/YTMP3/parameter.json"):
-            f = open(f"/Users/{user}/AppData/Local/YTMP3/parameter.json", "w")
+        if not path.exists(f"{home}/AppData/Local/YTMP3/parameter.json"):
+            f = open(f"{home}/AppData/Local/YTMP3/parameter.json", "w")
             f.write(paramJson)
             f.close()
 
-    return Path(f"/Users/{user}/AppData/Local/YTMP3/parameter.json")
+    return Path(f"{home}/AppData/Local/YTMP3/parameter.json")
 
 
 def Download_and_sort(highest, yt, musicFolder, APIkey):

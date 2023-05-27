@@ -12,7 +12,7 @@
 
 from pytube import YouTube
 from pytube import Playlist
-import os
+from pathlib import Path
 import json
 from sys import platform
 import argparse
@@ -122,7 +122,7 @@ def RemoveAPI():
 def ChangeTargetFile(target):
     param = GetParam()
     with open(pathLL, "w") as FW:
-        param["filePath"] = target
+        param["filePath"] = f"{target}"
         json.dump(param, FW)
     print("target path changed")
 
@@ -177,5 +177,5 @@ if args.yt_class:
         if link == "exit":
             A = False
         else:
-            getY(link, GetParam()["filePath"], GetParam()["apiKeys"])
+            getY(link, Path(GetParam()["filePath"]), GetParam()["apiKeys"])
             print("done")

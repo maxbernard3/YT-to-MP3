@@ -8,21 +8,20 @@ from pathlib import Path
 import http.client
 
 def createParam():
-    user = user = os.getlogin()
-    musPath = (r"C:\\Users\\% s\\Music"%user)
+    home = Path.home()
+    musPath = fr"{home}\Music"
     paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
 
-    if not path.exists(fr"C:\Users\{user}\AppData\LocalLow\YTMP3"):
-        os.makedirs(fr"C:\Users\{user}\AppData\LocalLow\YTMP3")
-        with open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w") as p:
+    if not path.exists(fr"{home}\AppData\LocalLow\YTMP3"):
+        os.system(fr"mkdir {home}\AppData\LocalLow\YTMP3")
+        with open(fr"{home}\AppData\LocalLow\YTMP3\parameter.json", "w") as p:
             p.write(paramJson)
-
     else:
-        if not path.exists(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json"):
-            with open(fr"C:\Users\{user}\AppData\LocalLow\YTMP3\parameter.json", "w") as p:
+        if not path.exists(fr"{home}\AppData\LocalLow\YTMP3\parameter.json"):
+            with open(fr"{home}\AppData\LocalLow\YTMP3\parameter.json", "w") as p:
                 p.write(paramJson)
 
-    return Path(fr"C:/Users/{user}/AppData/LocalLow/YTMP3/parameter.json")
+    return Path(fr"{home}\AppData\LocalLow\YTMP3\parameter.json")
 
 def Download_and_sort(highest, yt, musicFolder, APIkey):
     track_title = f"{remove(yt.title)}"
@@ -57,7 +56,7 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
             track_artist = remove(json_data['track']['subtitle'])
             iter = 6
 
-        os.remove(f"{musicFolder}\temp.wav")
+        os.remove(f"{musicFolder}\\temp.wav")
         iter += 1
 
         if (os.path.isdir(fr"{musicFolder}\{track_artist}") == False):
@@ -65,10 +64,10 @@ def Download_and_sort(highest, yt, musicFolder, APIkey):
 
         os.system(
             fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab {highest[1]}k -ar 44100 -y {musicFolder}\{track_artist}\{track_title}.mp3")
-        os.remove(f"{musicFolder}\temp.webm")
+        os.remove(f"{musicFolder}\\temp.webm")
 
 
 def Download_no_sort(highest, yt, musicFolder):
     track_title = f"{remove(yt.title)}"
     os.system(fr"ffmpeg -i {musicFolder}\temp.webm -vn -ab {highest[1]}k -ar 44100 -y {musicFolder}\{track_title}.mp3")
-    os.remove(f"{musicFolder}\temp.webm")
+    os.remove(f"{musicFolder}\\temp.webm")
