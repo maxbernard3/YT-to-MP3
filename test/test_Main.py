@@ -14,7 +14,8 @@ class TestMain(unittest.TestCase):
         self.assertEqual(param["apiKeys"][0], "", 'getParam is broken')
 
         Main.GetAPI("test")
-
+        
+        param = Main.GetParam()
         self.assertEqual(param["apiKeys"][0], "test", 'getParam or getApi is broken')
 
 
