@@ -1,6 +1,6 @@
 # This is a terminal application
 # no support for Linux
-# you can download a playlist too, link should look like this: https://www.youtube.com/playlist?list=PLq-toGv_i0BA2iRkCZHjyu2zkOMte-blR
+# you can download a playlist too
 
 # need python 3
 
@@ -16,23 +16,23 @@ import json
 from sys import platform
 import argparse
 
-if platform == 'Darwin' or platform == 'darwin':
-    import MacOS as sysPlat
-elif platform == 'Windows' or platform == 'win32':
+if platform == 'Windows' or platform == 'win32':
     import Windows as sysPlat
+else:
+    import MacOS as sysPlat
 
-# create a rapid api acount(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
+# create a rapid api account(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
 # get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
-# works with array so you can create many free acount
+# works with array, so you can create many free account
 
 # Parser
 parser = argparse.ArgumentParser(description='Run YT download and conversion')
 parser.add_argument('-N', '--noclass', dest='no_class', action='store_true',
-                    help='download without clasification')
+                    help='download without classification')
 parser.add_argument('-C', '--ytclass', dest="yt_class", action="store_true",
-                    help='download and clasify by artist')
+                    help='download and classify by artist')
 parser.add_argument('-A', '--api', dest="apikey", action='store',
-                    help='add API key for autoclasification', type=str)
+                    help='add API key for classification', type=str)
 parser.add_argument('-L', '--apilist', dest="apilist", action='store_true',
                     help='show all saved API key')
 parser.add_argument('--rmapi', dest="rmapi", action='store_true',
@@ -42,7 +42,7 @@ parser.add_argument('-T', '--targetdir', dest="targetdir", action='store',
 
 args = parser.parse_args()
 if args.no_class and args.yt_class:
-    raise ValueError('cant have both clasification and non classification')
+    raise ValueError('cant have both classification and non classification')
 
 pathLL = sysPlat.create_param()
 
@@ -60,18 +60,18 @@ def get_yt_vid(yt_link, music_folder):
     highest = [None, 0]
 
     for i in range(len(ys)):
-        if (int(ys[i].abr[:len(ys[i].abr) - 4]) > highest[1]):
+        if int(ys[i].abr[:len(ys[i].abr) - 4]) > highest[1]:
             highest[1] = int(ys[i].abr[:len(ys[i].abr) - 4])
             highest[0] = ys[i]
 
     highest[0].download(music_folder, "temp.webm")
-    return (highest, yt)
+    return highest, yt
 
 
-def get_yt_playlist(link):
+def get_yt_playlist(yt_link):
     sysPlat.check_0_remaining(get_param())
 
-    p = Playlist(link)
+    p = Playlist(yt_link)
     i = 0
     for vid_url in p.video_urls:
         param = get_param()
@@ -84,14 +84,14 @@ def get_yt_playlist(link):
     print("\n Done")
 
 
-def get_yt_playlist_no_classification(link, musicFolder):
-    p = Playlist(link)
+def get_yt_playlist_no_classification(yt_link, music_folder):
+    p = Playlist(yt_link)
     i = 0
     for vid_url in p.video_urls:
         i += 1
         print(f"{i} in {len(p)}")
-        high, yts = get_yt_vid(vid_url, musicFolder)
-        sysPlat.download_no_sort(high, yts, musicFolder)
+        high, yts = get_yt_vid(vid_url, music_folder)
+        sysPlat.download_no_sort(high, yts, music_folder)
     print("\n Done")
 
 
@@ -147,7 +147,7 @@ def get_classification(i):
 
     param = get_param()
     if param["apiKeys"] == [""]:
-        print("no APIkey so can't clasify")
+        print("no APIkey so can't classify")
     else:
         if 'playlist' in i:
             get_yt_playlist(i)
