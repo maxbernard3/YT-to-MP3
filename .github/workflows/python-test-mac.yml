@@ -32,4 +32,4 @@ jobs:
     - name: Test
       run: |
         cd test
-        python test_Main.py
+        python test.py
