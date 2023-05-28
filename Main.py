@@ -19,7 +19,7 @@ import argparse
 if platform == 'Windows' or platform == 'win32':
     import Windows as sysPlat
 else:
-    import MacOS as sysPlat
+    import Unix as sysPlat
 
 # create a rapid api account(s), get a 0$ plan at https://rapidapi.com/apidojo/api/shazam/pricing
 # get the api key from https://rapidapi.com/developer/dashboard -> your default app -> security
