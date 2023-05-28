@@ -9,7 +9,7 @@ import http.client
 
 def createParam():
     home = Path.home()
-    musPath = fr"{home}\Music"
+    musPath = f"{home}\Music".replace("\\", "\\\\")
     paramJson = '{"filePath": "% s","apiKeys": [""]}'%musPath
 
     if not path.exists(fr"{home}\AppData\LocalLow\YTMP3"):
