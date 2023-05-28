@@ -122,8 +122,13 @@ def check_0_remaining(param):
         }
 
         response = requests.request("POST", url, data=payload, headers=headers)
-        rem = int(response.headers["X-RateLimit-Requests-Remaining"])
-        i_remaining_uses = (i, rem)
 
-        if not rem == param["remainingUses"][i]:
-            update_remaining(param, i_remaining_uses)
+        if "X-RateLimit-Requests-Remaining" in response.headers:
+            rem = int(response.headers["X-RateLimit-Requests-Remaining"])
+            i_remaining_uses = (i, rem)
+
+            if not rem == param["remainingUses"][i]:
+                update_remaining(param, i_remaining_uses)
+        else:
+            update_remaining(param, (i, 0))
+            print(f"{param['apiKeys'][i]} is not a valid API key")
