@@ -2,7 +2,7 @@ import random
 
 
 def remove(string):
-    b = r"!@#$/.()\'&"
+    b = r"!@#$/.()\'&:,;*[]{}~"
     for char in b:
         string = string.replace(char, "")
     string = string.replace(" ", "-")

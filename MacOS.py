@@ -8,22 +8,22 @@ import requests
 
 
 def create_param():
-    user = os.getlogin()
-    mus_path = "/Users/% s/Music" %user
-    param_json = '{"filePath": "% s","apiKeys": [""], "remainingUses": [0]}'%mus_path
+    home = Path.home()
+    mus_path = f"{home}/Music"
+    param_json = '{"filePath": "% s","apiKeys": [""], "remainingUses": [0]}' % mus_path
 
-    if not path.exists(f"/Users/{user}/AppData/Local/YTMP3"):
-        os.makedirs(f"/Users/{user}/AppData/Local/YTMP3")
-        f = open(f"/Users/{user}/AppData/Local/YTMP3/parameter.json", "w")
+    if not path.exists(f"{home}/AppData/Local/YTMP3"):
+        os.makedirs(f"{home}/AppData/Local/YTMP3")
+        f = open(f"{home}/AppData/Local/YTMP3/parameter.json", "w")
         f.write(param_json)
         f.close()
     else:
-        if not path.exists(f"/Users/{user}/AppData/Local/YTMP3/parameter.json"):
-            f = open(f"/Users/{user}/AppData/Local/YTMP3/parameter.json", "w")
+        if not path.exists(f"{home}/AppData/Local/YTMP3/parameter.json"):
+            f = open(f"{home}/AppData/Local/YTMP3/parameter.json", "w")
             f.write(param_json)
             f.close()
 
-    return Path(f"/Users/{user}/AppData/Local/YTMP3/parameter.json")
+    return Path(f"{home}/AppData/Local/YTMP3/parameter.json")
 
 
 def convert_to_base64(music_folder, iterator):
@@ -61,7 +61,7 @@ def question_api(file_content, apikey, remaining_use):
 
 def download_sort(highest, yt, param):
     music_folder = param["filePath"]
-    ap_ikey = param["apiKeys"]
+    api_key = param["apiKeys"]
     remaining_use = param["remainingUses"]
 
     track_title = f"{Comon.remove(yt.title)}"
@@ -71,7 +71,7 @@ def download_sort(highest, yt, param):
 
     while iterator < 5:
         file_content = convert_to_base64(music_folder, iterator)
-        json_data, i_remaining_uses = question_api(file_content, ap_ikey, remaining_use)
+        json_data, i_remaining_uses = question_api(file_content, api_key, remaining_use)
 
         if i_remaining_uses == -1:
             os.remove(f"{music_folder}/temp.webm")
@@ -95,10 +95,10 @@ def download_sort(highest, yt, param):
     os.remove(f"{music_folder}/temp.webm")
 
 
-def download_no_sort(highest, yt, musicFolder):
+def download_no_sort(highest, yt, music_folder):
     track_title = f"{Comon.remove(yt.title)}"
-    os.system(f"ffmpeg -i '{musicFolder}/temp.webm' -vn -ab {highest[1]}k -ar 44100 -y '{musicFolder}/{track_title}.mp3'")
-    os.remove(f"{musicFolder}/temp.webm")
+    os.system(f"ffmpeg -i '{music_folder}/temp.webm' -vn -ab {highest[1]}k -ar 44100 -y '{music_folder}/{track_title}.mp3'")
+    os.remove(f"{music_folder}/temp.webm")
 
 
 def update_remaining(param, i_remaining):
