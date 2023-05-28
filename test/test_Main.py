@@ -11,11 +11,11 @@ import os
 class TestMain(unittest.TestCase):
     def test_GetParam(self):
         param = Main.GetParam()
-        self.assertEqual(param["apiKeys"], "", 'getParam is broken')
+        self.assertEqual(param["apiKeys"][0], "", 'getParam is broken')
 
         Main.GetAPI("test")
 
-        self.assertEqual(param["apiKeys"], "test", 'getParam or getApi is broken')
+        self.assertEqual(param["apiKeys"][0], "test", 'getParam or getApi is broken')
 
 
 
