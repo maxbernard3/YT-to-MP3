@@ -1,5 +1,5 @@
 # Python YT to MP3
-This is a project that heavily relies on [Pytub](https://github.com/pytube/pytube) 
+This is a project that heavily relies on [Pytub](https://github.com/pytube/pytube)  
 
 ## How to use
 You will need the folowing instalations :
